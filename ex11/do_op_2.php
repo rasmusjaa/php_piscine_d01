@@ -2,8 +2,7 @@
 <?PHP
 if ($argc == 2)
 {
-	$line = trim($argv[1]);
-	$line = preg_replace('/( |\t)+/', "", $line);
+	$line = preg_replace('/( |\t)+/', "", trim($argv[1]));
 	$pattern = '/([-+]?[0-9]+)([+\-*\/%])([-+]?[0-9]+)/';
 	preg_match_all($pattern, $line, $matches, PREG_SET_ORDER);
 	if ($matches[0][0] === $line && count($matches[0]) === 4)
