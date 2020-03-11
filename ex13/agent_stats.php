@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?PHP
-if ($argc > 1)
+if ($argc > 1 && ($argv[1] === "average" || $argv[1] === "average_user" || $argv[1] === "moulinette_variance"))
 {
 	$total = 0;
 	$times = 0;
@@ -16,9 +16,7 @@ if ($argc > 1)
 
 		$user['count'] = 0;
 		$user['total'] = 0;
-		$user['moulinette'] = 0;
-
-		if ($user[2] === "moulinette" && is_numeric($user[1]))
+		if ($user[2] === "moulinette")
 			$user['moulinette'] = $user[1];
 		else if (is_numeric($user[1]))
 		{
@@ -34,11 +32,13 @@ if ($argc > 1)
 		{
 			$users[$key]['count'] += $user['count'];
 			$users[$key]['total'] += $user['total'];
-			$users[$key]['moulinette'] += $user['moulinette'];
+			if ($user[2] === "moulinette")
+				$users[$key]['moulinette'] = $user[1];
 		}
 	}
 	array_shift($users);
-	sort($users);
+	$sorter = array_column($users, 0);
+	array_multisort($sorter, SORT_ASC, $users);
 
 	if ($argv[1] === "average")
 	{
@@ -50,17 +50,23 @@ if ($argc > 1)
 	{
 		foreach($users as $key => $user)
 		{
-			$average = $user['count'] !== 0 ? $user['total']/$user['count'] : 0;
-			echo $user[0].":".$average."\n";
+			if ($user['count'] > 0)
+			{
+				$average =  $user['total']/$user['count'];
+				echo $user[0].":".$average."\n";
+			}
 		}
 	}
 	else if ($argv[1] === "moulinette_variance")
 	{
 		foreach($users as $key => $user)
 		{
-			$average = $user['count'] !== 0 ? $user['total']/$user['count'] : 0;
-			$diff = $average - $user['moulinette'];
-			echo $user[0].":".$diff."\n";
+			if ($user['count'] > 0 && isset($user['moulinette']))
+			{
+				$average = $user['total']/$user['count'];
+				$diff = $average - $user['moulinette'];
+				echo $user[0].":".$diff."\n";
+			}
 		}
 	}
 
